@@ -13,10 +13,6 @@ async function bootstrap() {
       // forbidNonWhitelisted is set to true
       // to prevent the use of non-whitelisted properties
       forbidNonWhitelisted: true,
-      //transforms conversion
-      transformOptions: {
-        enableImplicitConversion: true,
-      },
     }),
   );
 

@@ -42,14 +42,18 @@ export class ProductsService {
   }
 
   async findAll(query: PaginationDto): Promise<Product[]> {
-    const { limit = 3, genders } = query;
-    console.log(genders);
+    const {
+      limit = 3,
+      genders = ['men', 'women', 'kids', 'unisex'],
+      offset = 0,
+    } = query;
     return await this.productsRepository.find({
       // take is the limit from typeorm
       take: limit,
       where: {
         gender: In(genders),
       },
+      skip: offset,
     });
   }
 
@@ -58,10 +62,15 @@ export class ProductsService {
 
     if (isUUID(term)) {
       product = await this.productsRepository.findOneBy({ id: term });
+    } else {
+      const queryBuilder = this.productsRepository.createQueryBuilder();
+      product = await queryBuilder
+        .where('UPPER(title) = :title', { title: term.toUpperCase() })
+        .orWhere('slug = :slug', { slug: term.toLowerCase() })
+        .getOne();
+      // or use where (slug =:term or UPPER(title) =:term,
+      // { title: term.toUpperCase(), slug: term.toLowerCase()})
     }
-
-    if (!product)
-      product = await this.productsRepository.findOneBy({ slug: term });
 
     if (!product)
       throw new NotFoundException(
