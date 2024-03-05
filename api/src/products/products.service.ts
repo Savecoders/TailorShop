@@ -11,7 +11,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
 import { Repository } from 'typeorm';
 import { isUUID } from 'class-validator';
-import { query } from 'express';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Injectable()
@@ -43,10 +42,13 @@ export class ProductsService {
   }
 
   async findAll(query: PaginationDto): Promise<Product[]> {
-    const { limit = 3 } = query;
+    const { limit = 3, gender } = query;
     return await this.productsRepository.find({
       // take is the limit from typeorm
       take: limit,
+      where: {
+        gender: gender,
+      },
     });
   }
 

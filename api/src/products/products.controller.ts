@@ -12,7 +12,6 @@ import {
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { query } from 'express';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Controller('products')
