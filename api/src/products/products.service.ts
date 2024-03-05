@@ -3,12 +3,16 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
 import { Repository } from 'typeorm';
+import { isUUID } from 'class-validator';
+import { query } from 'express';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Injectable()
 export class ProductsService {
@@ -38,20 +42,48 @@ export class ProductsService {
     }
   }
 
-  findAll() {
-    return `This action returns all products`;
+  async findAll(query: PaginationDto): Promise<Product[]> {
+    const { limit = 3 } = query;
+    return await this.productsRepository.find({
+      // take is the limit from typeorm
+      take: limit,
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} product`;
+  async findOne(term: string) {
+    let product: Product;
+
+    if (isUUID(term)) {
+      product = await this.productsRepository.findOneBy({ id: term });
+    }
+
+    if (!product)
+      product = await this.productsRepository.findOneBy({ slug: term });
+
+    if (!product)
+      throw new NotFoundException(
+        `Product with term ${term} not found | slug or id`,
+      );
+
+    return product;
   }
 
   update(id: number, updateProductDto: UpdateProductDto) {
     return `This action updates a #${id} product`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} product`;
+  async remove(id: string) {
+    // return await this.productsRepository.delete(id).then((res) => {
+    //   if (res.affected === 0)
+    //     throw new BadRequestException(`Product with id ${id} not found`);
+    //   return res;
+    // });
+    const { affected } = await this.productsRepository.delete(id);
+
+    if (affected === 0)
+      throw new BadRequestException(`Product with id ${id} not found`);
+
+    return;
   }
 
   private handleDBExceptions(error: any) {
