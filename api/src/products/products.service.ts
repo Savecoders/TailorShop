@@ -9,7 +9,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { isUUID } from 'class-validator';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 
@@ -42,12 +42,13 @@ export class ProductsService {
   }
 
   async findAll(query: PaginationDto): Promise<Product[]> {
-    const { limit = 3, gender } = query;
+    const { limit = 3, genders } = query;
+    console.log(genders);
     return await this.productsRepository.find({
       // take is the limit from typeorm
       take: limit,
       where: {
-        gender: gender,
+        gender: In(genders),
       },
     });
   }
