@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, BeforeInsert } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  BeforeInsert,
+  BeforeUpdate,
+} from 'typeorm';
 
 // use the @Entity() decorator to define the Product entity
 @Entity()
@@ -50,5 +56,13 @@ export class Product {
       .replaceAll("'", '');
     // you can use regex to replace
     // .replace(/ /g, '_').replace(/'/g, '');
+  }
+
+  @BeforeUpdate()
+  checkUpdate() {
+    this.slug = this.slug
+      .toLowerCase()
+      .replaceAll(' ', '_')
+      .replaceAll("'", '');
   }
 }

@@ -80,8 +80,18 @@ export class ProductsService {
     return product;
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+  async update(id: string, updateProductDto: UpdateProductDto) {
+    try {
+      const { affected } = await this.productsRepository.update(
+        id,
+        updateProductDto,
+      );
+      if (affected === 0)
+        throw new BadRequestException(`Product with id ${id} not found`);
+    } catch (error) {
+      this.handleDBExceptions(error);
+    }
+    return;
   }
 
   async remove(id: string) {
