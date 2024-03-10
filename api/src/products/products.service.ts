@@ -8,7 +8,7 @@ import {
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Product } from './entities/product.entity';
+import { Product, ProductImages } from './entities/';
 import { In, Repository } from 'typeorm';
 import { isUUID } from 'class-validator';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
@@ -21,6 +21,9 @@ export class ProductsService {
     // pattern repository
     @InjectRepository(Product)
     private readonly productsRepository: Repository<Product>,
+
+    @InjectRepository(ProductImages)
+    private readonly productImagesRepository: Repository<ProductImages>,
   ) {}
 
   async create(createProductDto: CreateProductDto) {
@@ -33,9 +36,16 @@ export class ProductsService {
       //     .replaceAll("'", '');
       // }
 
-      const product = this.productsRepository.create(createProductDto);
+      const { images = [], ...productDetails } = createProductDto;
+
+      const product = this.productsRepository.create({
+        ...productDetails,
+        images: images.map((url) =>
+          this.productImagesRepository.create({ url }),
+        ),
+      });
       await this.productsRepository.save(product);
-      return product;
+      return { ...product, images };
     } catch (error) {
       this.handleDBExceptions(error);
     }
@@ -82,10 +92,10 @@ export class ProductsService {
 
   async update(id: string, updateProductDto: UpdateProductDto) {
     try {
-      const { affected } = await this.productsRepository.update(
-        id,
-        updateProductDto,
-      );
+      const { affected } = await this.productsRepository.update(id, {
+        ...updateProductDto,
+        images: [],
+      });
       if (affected === 0)
         throw new BadRequestException(`Product with id ${id} not found`);
     } catch (error) {
