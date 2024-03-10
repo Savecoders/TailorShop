@@ -51,48 +51,50 @@ export class ProductsService {
     }
   }
 
-  async findAll(query: PaginationDto): Promise<Product[]> {
+  async findAll(query: PaginationDto): Promise<any[]> {
     const {
       limit = 3,
       genders = ['men', 'women', 'kids', 'unisex'],
       offset = 0,
     } = query;
-    return await this.productsRepository.find({
+    const products = await this.productsRepository.find({
       // take is the limit from typeorm
       take: limit,
       where: {
         gender: In(genders),
       },
       skip: offset,
-      relations: {
-        images: true,
-      },
     });
+
+    return products.map((product) => ({
+      ...product,
+      images: product.images.map(({ url }) => url),
+    }));
   }
 
   async findOne(term: string) {
     let product: Product;
 
     if (isUUID(term)) {
-      product = await this.productsRepository.findOne({
-        where: { id: term },
-        relations: {
-          images: true,
-        },
+      product = await this.productsRepository.findOneBy({
+        id: term,
       });
     } else {
-      // const queryBuilder = this.productsRepository.createQueryBuilder();
-      // product = await queryBuilder
-      //   .where('UPPER(title) = :title', { title: term.toUpperCase() })
-      //   .orWhere('slug = :slug', { slug: term.toLowerCase() })
-      //   .getOne();
+      const queryBuilder =
+        this.productsRepository.createQueryBuilder('product');
+      //! when use queryBuilder you can create alias for the table
+      product = await queryBuilder
+        .where('UPPER(title) = :title', { title: term.toUpperCase() })
+        .orWhere('slug = :slug', { slug: term.toLowerCase() })
+        .leftJoinAndSelect('product.images', 'images')
+        .getOne();
 
-      product = await this.productsRepository.findOne({
-        where: [{ slug: term.toLowerCase() }, { title: term.toUpperCase() }],
-        relations: {
-          images: true,
-        },
-      });
+      // product = await this.productsRepository.findOne({
+      //   where: [{ slug: term.toLowerCase() }, { title: term.toUpperCase() }],
+      //   relations: {
+      //     images: true,
+      //   },
+      // });
       // or use where (slug =:term or UPPER(title) =:term,
       // { title: term.toUpperCase(), slug: term.toLowerCase()})
     }
@@ -103,6 +105,14 @@ export class ProductsService {
       );
 
     return product;
+  }
+
+  async findOnePlane(term: string) {
+    const product = await this.findOne(term);
+    return {
+      ...product,
+      images: product.images.map(({ url }) => url),
+    };
   }
 
   async update(id: string, updateProductDto: UpdateProductDto) {
