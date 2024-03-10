@@ -46,16 +46,16 @@ export class Product {
   @Column('text')
   gender: string;
 
+  @OneToMany(() => ProductImages, (productImage) => productImage.product, {
+    cascade: true,
+  })
+  images?: ProductImages[];
+
   @Column('text', {
     array: true,
     default: [],
   })
   tags: string[];
-
-  @OneToMany(() => ProductImages, (productImage) => productImage.product, {
-    cascade: true,
-  })
-  images?: ProductImages[];
 
   @BeforeInsert()
   checkSlug() {

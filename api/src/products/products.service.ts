@@ -40,8 +40,8 @@ export class ProductsService {
 
       const product = this.productsRepository.create({
         ...productDetails,
-        images: images.map((url) =>
-          this.productImagesRepository.create({ url }),
+        images: images.map((image) =>
+          this.productImagesRepository.create({ url: image }),
         ),
       });
       await this.productsRepository.save(product);
@@ -64,6 +64,9 @@ export class ProductsService {
         gender: In(genders),
       },
       skip: offset,
+      relations: {
+        images: true,
+      },
     });
   }
 
@@ -71,13 +74,25 @@ export class ProductsService {
     let product: Product;
 
     if (isUUID(term)) {
-      product = await this.productsRepository.findOneBy({ id: term });
+      product = await this.productsRepository.findOne({
+        where: { id: term },
+        relations: {
+          images: true,
+        },
+      });
     } else {
-      const queryBuilder = this.productsRepository.createQueryBuilder();
-      product = await queryBuilder
-        .where('UPPER(title) = :title', { title: term.toUpperCase() })
-        .orWhere('slug = :slug', { slug: term.toLowerCase() })
-        .getOne();
+      // const queryBuilder = this.productsRepository.createQueryBuilder();
+      // product = await queryBuilder
+      //   .where('UPPER(title) = :title', { title: term.toUpperCase() })
+      //   .orWhere('slug = :slug', { slug: term.toLowerCase() })
+      //   .getOne();
+
+      product = await this.productsRepository.findOne({
+        where: [{ slug: term.toLowerCase() }, { title: term.toUpperCase() }],
+        relations: {
+          images: true,
+        },
+      });
       // or use where (slug =:term or UPPER(title) =:term,
       // { title: term.toUpperCase(), slug: term.toLowerCase()})
     }
