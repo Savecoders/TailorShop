@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Controller,
   FileTypeValidator,
   MaxFileSizeValidator,
@@ -9,15 +10,29 @@ import {
 } from '@nestjs/common';
 import { FilesService } from './files.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { fileFilter } from './helpers/fileFiler.helper';
+import { diskStorage } from 'multer';
 
 @Controller('files')
 export class FilesController {
   constructor(private readonly filesService: FilesService) {}
 
   @Post('product')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      fileFilter: fileFilter,
+      storage: diskStorage({
+        destination: './static/products',
+      }),
+    }),
+  )
   uploadProductFile(@UploadedFile() file: Express.Multer.File) {
-    console.log(file);
+    if (!file) {
+      throw new BadRequestException(
+        'No file provided, Make sure that the file is an image',
+      );
+    }
+
     return {
       file: file.originalname,
     };
