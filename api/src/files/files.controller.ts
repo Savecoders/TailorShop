@@ -22,4 +22,19 @@ export class FilesController {
       file: file.originalname,
     };
   }
+
+  @Post('package') uploadPackageFile(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 10000000 }),
+          new FileTypeValidator({ fileType: '.(png|jpeg|jpg)' }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+  ) {
+    console.log(file);
+    return file;
+  }
 }
