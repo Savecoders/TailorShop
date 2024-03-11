@@ -10,8 +10,9 @@ import {
 } from '@nestjs/common';
 import { FilesService } from './files.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { fileFilter } from './helpers/fileFiler.helper';
+import { fileFilter } from './helpers/fileFilter.helper';
 import { diskStorage } from 'multer';
+import { fileNamer } from './helpers/fileNamer.helper';
 
 @Controller('files')
 export class FilesController {
@@ -23,6 +24,7 @@ export class FilesController {
       fileFilter: fileFilter,
       storage: diskStorage({
         destination: './static/products',
+        filename: fileNamer,
       }),
     }),
   )
@@ -32,9 +34,9 @@ export class FilesController {
         'No file provided, Make sure that the file is an image',
       );
     }
-
+    console.log(file);
     return {
-      file: file.originalname,
+      file: file.filename,
     };
   }
 
