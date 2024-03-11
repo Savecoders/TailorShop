@@ -9,7 +9,9 @@ import {
 import { ProductImages } from './product-images.entity';
 
 // use the @Entity() decorator to define the Product entity
-@Entity()
+@Entity({
+  name: 'products',
+})
 export class Product {
   @PrimaryGeneratedColumn('uuid')
   id: string;
