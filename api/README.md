@@ -17,6 +17,21 @@ This an api from Ecommerce
  pnpm install
 ```
 
+## Up Docker
+
+```bash
+docker-compose --env-file .env up -d
+```
+
+> [!NOTE]
+> Docker-compose read default envirioment file `.env` you have rename `.env.template` and change the value form variables
+
+## Up seed in Development
+
+```bash
+  http://localhost:3000/api/seed
+```
+
 ## Running the app
 
 ```bash
@@ -31,15 +46,6 @@ This an api from Ecommerce
 
  pnpm run start:prod
 ```
-
-## Up Docker
-
-```bash
-docker-compose --env-file .env up -d
-```
-
-> [!NOTE]
-> Docker-compose read default envirioment file `.env` you have rename `.env.template` and change the value form variables
 
 ## Test
 
