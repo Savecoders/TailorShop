@@ -9,7 +9,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product, ProductImages } from './entities/';
-import { In, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { isUUID } from 'class-validator';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 
@@ -24,6 +24,8 @@ export class ProductsService {
 
     @InjectRepository(ProductImages)
     private readonly productImagesRepository: Repository<ProductImages>,
+    // DataSource is full control over the transaction.
+    private readonly dataSource: DataSource,
   ) {}
 
   async create(createProductDto: CreateProductDto) {
@@ -116,17 +118,46 @@ export class ProductsService {
   }
 
   async update(id: string, updateProductDto: UpdateProductDto) {
+    const { images, ...toUpdate } = updateProductDto;
+
+    const product = await this.productsRepository.preload({
+      id,
+      ...toUpdate,
+    });
+
+    if (!product)
+      throw new NotFoundException(`Product with id ${id} not found`);
+
+    // Create query runner
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
     try {
-      const { affected } = await this.productsRepository.update(id, {
-        ...updateProductDto,
-        images: [],
-      });
-      if (affected === 0)
-        throw new BadRequestException(`Product with id ${id} not found`);
+      if (images) {
+        // remove images
+        await queryRunner.manager.delete(ProductImages, {
+          product: { id },
+        });
+        product.images = images.map((image) =>
+          this.productImagesRepository.create({ url: image }),
+        );
+      }
+      // not have inpact in the database
+      await queryRunner.manager.save(product);
+      // await this.productsRepository.save(product);
+      // commit transaction
+      await queryRunner.commitTransaction();
+      // close query runner
+      await queryRunner.release();
+      return this.findOnePlane(id);
     } catch (error) {
+      // rollback transaction if error
+      await queryRunner.rollbackTransaction();
+      await queryRunner.release();
       this.handleDBExceptions(error);
     }
-    return;
   }
 
   async remove(id: string) {
