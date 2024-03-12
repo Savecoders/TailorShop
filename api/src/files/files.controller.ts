@@ -2,12 +2,16 @@ import {
   BadRequestException,
   Controller,
   FileTypeValidator,
+  Get,
   MaxFileSizeValidator,
+  Param,
   ParseFilePipe,
   Post,
+  Res,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { FilesService } from './files.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { fileFilter } from './helpers/fileFilter.helper';
@@ -53,5 +57,15 @@ export class FilesController {
   ) {
     console.log(file);
     return file;
+  }
+
+  @Get('product/:filename')
+  findProductImageStorage(
+    @Res() res: Response,
+    @Param('filename') filename: string,
+  ) {
+    const path = this.filesService.getStaticProductImage(filename);
+
+    res.sendFile(path);
   }
 }
