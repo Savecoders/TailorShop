@@ -17,10 +17,14 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { fileFilter } from './helpers/fileFilter.helper';
 import { diskStorage } from 'multer';
 import { fileNamer } from './helpers/fileNamer.helper';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('files')
 export class FilesController {
-  constructor(private readonly filesService: FilesService) {}
+  constructor(
+    private readonly filesService: FilesService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @Post('product')
   @UseInterceptors(
@@ -38,9 +42,9 @@ export class FilesController {
         'No file provided, Make sure that the file is an image',
       );
     }
-    console.log(file);
+    const secureUrl = `${this.configService.get<string>('host_api')}/files/product/${file.filename}`;
     return {
-      file: file.filename,
+      file: secureUrl,
     };
   }
 
