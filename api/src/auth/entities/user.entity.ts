@@ -15,12 +15,16 @@ export class User {
   @Column('text')
   name: string;
 
-  @Column('uuid')
+  @Column('text', {
+    select: false,
+  })
   password: string;
+
   @Column('bool', {
     default: true,
   })
   isActivated: boolean;
+
   @Column('text', {
     array: true,
     default: ['user'],
