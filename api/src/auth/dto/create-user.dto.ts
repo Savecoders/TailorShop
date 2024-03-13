@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import {
   IsEmail,
   IsString,
@@ -7,6 +8,7 @@ import {
 } from 'class-validator';
 
 export class CreateUserDto {
+  @Transform(({ value }) => value.toLowerCase())
   @IsEmail()
   @IsString()
   email: string;
@@ -19,6 +21,8 @@ export class CreateUserDto {
       'The password must have a Uppercase, lowercase letter and a number',
   })
   password: string;
+
+  @Transform(({ value }) => value.toLowerCase())
   @IsString()
   @MinLength(3)
   name: string;
