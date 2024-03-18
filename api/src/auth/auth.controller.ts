@@ -1,11 +1,4 @@
-import {
-  Controller,
-  Post,
-  Body,
-  Get,
-  UseGuards,
-  SetMetadata,
-} from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
@@ -14,11 +7,9 @@ import { GetUser } from './decorators/get-user.decorator';
 import { User } from './entities/user.entity';
 import { RawHeaders } from './decorators/raw-headers.decorator';
 import { UserRoleGuard } from './guards/user-role.guard';
-import {
-  META_ROLES,
-  RoleProtected,
-} from './decorators/role-protected.decorator';
+import { RoleProtected } from './decorators/role-protected.decorator';
 import { ValidRoles } from './interfaces/valid-roles';
+import { Auth } from './decorators/auth.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -54,6 +45,16 @@ export class AuthController {
   @RoleProtected(ValidRoles.ADMIN, ValidRoles.USER)
   @UseGuards(AuthGuard(), UserRoleGuard)
   protectedRoute(@GetUser() user: User) {
+    return {
+      ok: true,
+      message: 'This is a protected route',
+      user,
+    };
+  }
+
+  @Get('virefied')
+  @Auth(ValidRoles.ADMIN)
+  virefiedRoute(@GetUser() user: User) {
     return {
       ok: true,
       message: 'This is a protected route',
