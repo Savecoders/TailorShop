@@ -5,8 +5,10 @@ import {
   BeforeInsert,
   BeforeUpdate,
   OneToMany,
+  ManyToOne,
 } from 'typeorm';
 import { ProductImages } from './product-images.entity';
+import { User } from '../../auth/entities/user.entity';
 
 // use the @Entity() decorator to define the Product entity
 @Entity({
@@ -59,6 +61,11 @@ export class Product {
     default: [],
   })
   tags: string[];
+
+  @ManyToOne(() => User, (user) => user.product, {
+    eager: true,
+  })
+  user: User;
 
   @BeforeInsert()
   checkSlug() {
