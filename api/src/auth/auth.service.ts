@@ -34,7 +34,7 @@ export class AuthService {
 
       return {
         ...user,
-        token: this.getJwtToken({ email: user.email }),
+        token: this.getJwtToken({ id: user.id }),
       };
     } catch (error) {
       this.handleDBErros(error);
@@ -67,6 +67,7 @@ export class AuthService {
       select: {
         password: true,
         email: true,
+        id: true,
       },
     });
 
@@ -80,9 +81,10 @@ export class AuthService {
       throw new UnauthorizedException('Email or password is incorrect');
     }
 
+    delete user.password;
     return {
       ...user,
-      token: this.getJwtToken({ email: user.email }),
+      token: this.getJwtToken({ id: user.id }),
     };
   }
 
