@@ -89,3 +89,14 @@ Esta es una de las secciones más grandes del curso y está cargada de muchos co
 - Y mucho más
 
 Hay varias tareas dentro de esta sección que esperaría que intenten llevar con calma, todo lo que esta sección contiene puede ser abrumador.
+
+## Temas puntuales de la sección
+
+El objetivo de esta sección es trabajar con la documentación semi-automática que nos ofrece Nest para seguir  la especificación de OpenAPI
+
+
+- Puntualmente veremos:
+
+- Postman documentation
+
+- Nest Swagger
