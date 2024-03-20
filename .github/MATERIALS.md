@@ -90,13 +90,34 @@ Esta es una de las secciones más grandes del curso y está cargada de muchos co
 
 Hay varias tareas dentro de esta sección que esperaría que intenten llevar con calma, todo lo que esta sección contiene puede ser abrumador.
 
-## Temas puntuales de la sección
+## Temas puntuales de la sección: 14
 
-El objetivo de esta sección es trabajar con la documentación semi-automática que nos ofrece Nest para seguir  la especificación de OpenAPI
-
+El objetivo de esta sección es trabajar con la documentación semi-automática que nos ofrece Nest para seguir la especificación de OpenAPI
 
 - Puntualmente veremos:
 
 - Postman documentation
 
 - Nest Swagger
+
+## Temas puntuales de la sección: 15
+
+Esta sección tiene información sobre la comunicación entre cliente y servidor mediante WebSockets, puntualmente veremos:
+
+Nest Gateways
+
+Conecciones
+
+Desconecciones
+
+Emitir y escuchar mensajes desde el servidor y cliente
+
+Cliente con Vite y TS
+
+Autenticar conección mediante JWTs
+
+Usar mismo mecanismos de autenticación previamente creado
+
+Desconectar sockets manualmente
+
+Prevenir doble conexión de usuarios autenticados.
